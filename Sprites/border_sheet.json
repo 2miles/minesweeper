@@ -1,0 +1,68 @@
+{
+    "frames": {
+        "top_left.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 22,
+                "h": 22
+            }
+        },
+        "top_right.png": {
+            "frame": {
+                "x": 22,
+                "y": 0,
+                "w": 22,
+                "h": 22
+            }
+        },
+        "bottom_left.png": {
+            "frame": {
+                "x": 44,
+                "y": 0,
+                "w": 22,
+                "h": 22
+            }
+        },
+        "bottom_right.png": {
+            "frame": {
+                "x": 66,
+                "y": 0,
+                "w": 22,
+                "h": 22
+            }
+        },
+        "right_t.png": {
+            "frame": {
+                "x": 88,
+                "y": 0,
+                "w": 22,
+                "h": 22
+            }
+        },
+        "left_t.png": {
+            "frame": {
+                "x": 110,
+                "y": 0,
+                "w": 22,
+                "h": 22
+            }
+        },
+        "horizontal_bar.png": {
+            "frame": {
+                "x": 132,
+                "y": 0,
+                "w": 32,
+                "h": 22
+            }
+        },
+        "vertical_bar.png": {
+            "frame": {
+                "x": 164,
+                "y": 0,
+                "w": 22,
+                "h": 32
+            }
+        }
+    }
+}
