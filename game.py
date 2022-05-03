@@ -214,28 +214,19 @@ def draw_background():
     """
     surface = pygame.Surface((SCREEN_W, SCREEN_H))
     surface.fill(BG_COLOR)
+    for i in range(ROWS + 4):
+        surface.blit(borders["vertical_bar"], (grid_w + BORDER, i * 32))
+        surface.blit(borders["vertical_bar"], (0, i * 32))
+    for i in range(COLS + 2):
+        surface.blit(borders["horizontal_bar"], (i * 32, 0))
+        surface.blit(borders["horizontal_bar"], (i * 32, BORDER + TOP_AREA))
+        surface.blit(borders["horizontal_bar"], (i * 32, GRID_Y + grid_h))
     surface.blit(borders["top_left"], (0, 0))
     surface.blit(borders["top_right"], (grid_w + BORDER, 0))
     surface.blit(borders["bottom_left"], (0, grid_h + GRID_Y))
-    surface.blit(borders["bottom_right"], (grid_w + 22, grid_h + GRID_Y))
+    surface.blit(borders["bottom_right"], (grid_w + BORDER, SCREEN_H - BORDER))
     surface.blit(borders["left_t"], (0, TOP_AREA + BORDER))
     surface.blit(borders["right_t"], (grid_w + BORDER, TOP_AREA + BORDER))
-    for i in range(2):
-        surface.blit(borders["vertical_bar"], (0, BORDER + i * 32))
-        surface.blit(borders["vertical_bar"], (grid_w + BORDER, BORDER + i * 32))
-    for i in range(ROWS):
-        surface.blit(
-            borders["vertical_bar"],
-            (grid_w + BORDER, GRID_Y + i * 32),
-        )
-        surface.blit(borders["vertical_bar"], (0, GRID_Y + i * 32))
-    for i in range(COLS):
-        surface.blit(borders["horizontal_bar"], (BORDER + i * 32, 0))
-        surface.blit(borders["horizontal_bar"], (BORDER + i * 32, BORDER + TOP_AREA))
-        surface.blit(
-            borders["horizontal_bar"],
-            (BORDER + i * 32, GRID_Y + ROWS * 32),
-        )
     return surface
 
 
