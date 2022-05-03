@@ -5,6 +5,10 @@ from spritesheet import Spritesheet
 
 pygame.init()
 
+COLS = 20  # number of cols in grid
+ROWS = 10  # number of rows in grid
+MINES = 20
+
 BG_COLOR = (192, 192, 192)
 BOX_SIZE = 32
 BORDER = 22
@@ -12,17 +16,14 @@ TOP_AREA = BOX_SIZE * 2
 GRID_X = BORDER
 GRID_Y = TOP_AREA + BORDER * 2
 
-game_w = 20  # number of boxes per row of grid
-game_h = 10  # number of boxes per column of grid
-num_mines = 20
 
-grid_w = game_w * BOX_SIZE
-grid_h = game_h * BOX_SIZE
-display_width = grid_w + BORDER * 2  # Display width
-display_height = grid_h + GRID_Y + BORDER  # Display height
+grid_w = COLS * BOX_SIZE
+grid_h = ROWS * BOX_SIZE
+SCREEN_W = grid_w + BORDER * 2  # Display width
+SCREEN_H = grid_h + GRID_Y + BORDER  # Display height
 
 
-display = pygame.display.set_mode((display_width, display_height))  # Create display
+display = pygame.display.set_mode((SCREEN_W, SCREEN_H))  # Create display
 pygame.display.set_caption("Minesweeper")
 clock = pygame.time.Clock()  # create timer
 
@@ -37,15 +38,15 @@ class Box:
         self.val = val  # Number of bombs next to box, -1 is mine
         self.rect = pygame.Rect(
             self.x * BOX_SIZE + BORDER,
-            self.y * BOX_SIZE + TOP_AREA + BORDER * 2,
+            self.y * BOX_SIZE + GRID_Y,
             BOX_SIZE,
             BOX_SIZE,
         )
-        self.sprites = Spritesheet.parse_box_sprites(Spritesheet)
         self.clicked = False  # Has box been clicked
         self.mineClicked = False  # Has box been clicked and its a mine
         self.mineFalse = False  # Has player flagged the wrong box without bomb
         self.flag = False  # Has player flagged the box
+        self.sprites = Spritesheet.parse_box_sprites(Spritesheet)
 
     def draw(self):
         """
@@ -93,16 +94,17 @@ class Grid:
     boxes = []
     mines = []
 
-    def __init__(self):
-        self.rows = game_h
-        self.cols = game_w
+    def __init__(self, rows, cols, num_mines):
+        self.rows = rows
+        self.cols = cols
         self.width = self.cols * BOX_SIZE
         self.height = self.rows * BOX_SIZE
+        self.num_mines = num_mines
+        self.mines_left = num_mines
         self.mines = self.generate_mines()
         self.generate_boxes()
         self.populate_values()
         self.rect = (GRID_X, GRID_Y, self.width, self.height)
-        self.mines_left = num_mines
 
     def generate_boxes(self):
         for j in range(self.rows):
@@ -116,7 +118,7 @@ class Grid:
 
     def generate_mines(self):
         mines = [[random.randrange(0, self.cols), random.randrange(0, self.rows)]]
-        for _ in range(num_mines - 1):
+        for _ in range(self.num_mines - 1):
             pos = [random.randrange(0, self.cols), random.randrange(0, self.rows)]
             complete = False
             while not complete:
@@ -157,9 +159,9 @@ class Grid:
         self.boxes[y][x].clicked = True
         if self.boxes[y][x].val == 0:
             for j in range(-1, 2):
-                if x + j >= 0 and x + j < game_w:
+                if x + j >= 0 and x + j < self.cols:
                     for i in range(-1, 2):
-                        if y + i >= 0 and y + i < game_h:
+                        if y + i >= 0 and y + i < self.rows:
                             if not self.boxes[y + i][x + j].clicked:
                                 self.revealGrid(x + j, y + i)
         # If you click on a mine reveal all the mines
@@ -210,7 +212,7 @@ def draw_background():
     """
     Draw the background by patching together the sprites from border_sheet.png
     """
-    surface = pygame.Surface((display_width, display_height))
+    surface = pygame.Surface((SCREEN_W, SCREEN_H))
     surface.fill(BG_COLOR)
     surface.blit(borders["top_left"], (0, 0))
     surface.blit(borders["top_right"], (grid_w + BORDER, 0))
@@ -221,18 +223,18 @@ def draw_background():
     for i in range(2):
         surface.blit(borders["vertical_bar"], (0, BORDER + i * 32))
         surface.blit(borders["vertical_bar"], (grid_w + BORDER, BORDER + i * 32))
-    for i in range(game_h):
+    for i in range(ROWS):
         surface.blit(
             borders["vertical_bar"],
             (grid_w + BORDER, GRID_Y + i * 32),
         )
         surface.blit(borders["vertical_bar"], (0, GRID_Y + i * 32))
-    for i in range(game_w):
+    for i in range(COLS):
         surface.blit(borders["horizontal_bar"], (BORDER + i * 32, 0))
         surface.blit(borders["horizontal_bar"], (BORDER + i * 32, BORDER + TOP_AREA))
         surface.blit(
             borders["horizontal_bar"],
-            (BORDER + i * 32, GRID_Y + game_h * 32),
+            (BORDER + i * 32, GRID_Y + ROWS * 32),
         )
     return surface
 
@@ -242,9 +244,9 @@ def gameLoop():
     seconds = 0
     score = 0
 
-    grid = Grid()
-    score = Status(grid_w - 64, BORDER + 6)
-    timer = Status(BORDER + 6, BORDER + 6)
+    grid = Grid(ROWS, COLS, MINES)
+    timer = Status(grid_w - 64, BORDER + 6)
+    remaining = Status(BORDER + 6, BORDER + 6)
 
     while gameState != "Exit":
         # Reset screen
@@ -253,6 +255,7 @@ def gameLoop():
         if seconds % 60 == 0:
             timer.update(seconds // 60)
 
+        remaining.update(grid.mines_left)
         for event in pygame.event.get():
             # Check if player close window
             if event.type == pygame.QUIT:
@@ -292,7 +295,7 @@ def gameLoop():
 
         display.blit(draw_background(), (0, 0))
         display.blit(timer.draw(), (timer.rect))
-        display.blit(score.draw(), (score.rect))
+        display.blit(remaining.draw(), (remaining.rect))
         display.blit(grid.draw(), (grid.rect))
         pygame.display.update()  # Update screen
 
