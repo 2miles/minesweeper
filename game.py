@@ -19,7 +19,7 @@ num_mines = 20
 grid_w = game_w * BOX_SIZE
 grid_h = game_h * BOX_SIZE
 display_width = grid_w + BORDER * 2  # Display width
-display_height = grid_h + TOP_AREA + BORDER * 3  # Display height
+display_height = grid_h + GRID_Y + BORDER  # Display height
 
 
 display = pygame.display.set_mode((display_width, display_height))  # Create display
@@ -101,7 +101,7 @@ class Grid:
         self.mines = self.generate_mines()
         self.generate_boxes()
         self.populate_values()
-        self.rect = (BORDER, TOP_AREA + BORDER * 2, self.width, self.height)
+        self.rect = (GRID_X, GRID_Y, self.width, self.height)
         self.mines_left = num_mines
 
     def generate_boxes(self):
@@ -147,29 +147,26 @@ class Grid:
                                     if self.boxes[box.y + i][box.x + j].val == -1:
                                         box.val += 1
 
-    def revealGrid(self, box_x, box_y):
+    def revealGrid(self, x, y):
         """
         Sets the box at argument coords clicked attribute to True.
         If its not a mine, recursivly call revealGrid() on all adjacent boxes
         that are not mines.
         If it is a mine, reveal all mines.
         """
-        self.boxes[box_y][box_x].clicked = True
-        if self.boxes[box_y][box_x].val == 0:
+        self.boxes[y][x].clicked = True
+        if self.boxes[y][x].val == 0:
             for j in range(-1, 2):
-                if box_x + j >= 0 and box_x + j < game_w:
+                if x + j >= 0 and x + j < game_w:
                     for i in range(-1, 2):
-                        if box_y + i >= 0 and box_y + i < game_h:
-                            if not self.boxes[box_y + i][box_x + j].clicked:
-                                self.revealGrid(
-                                    self.boxes[box_y + i][box_x + j].x,
-                                    self.boxes[box_y + i][box_x + j].y,
-                                )
+                        if y + i >= 0 and y + i < game_h:
+                            if not self.boxes[y + i][x + j].clicked:
+                                self.revealGrid(x + j, y + i)
         # If you click on a mine reveal all the mines
-        elif self.boxes[box_y][box_x].val == -1:
+        elif self.boxes[y][x].val == -1:
             for m in self.mines:
                 if not self.boxes[m[1]][m[0]].clicked:
-                    self.revealGrid(self.boxes[m[1]][m[0]].x, self.boxes[m[1]][m[0]].y)
+                    self.revealGrid(m[0], m[1])
 
     def draw(self):
         surface = pygame.Surface((self.width, self.height))
