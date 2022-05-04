@@ -12,6 +12,7 @@ grid_w = COLS * BOX_SIZE
 grid_h = ROWS * BOX_SIZE
 SCREEN_W = grid_w + BORDER * 2  # Display width
 SCREEN_H = grid_h + TOP_AREA + BORDER * 3  # Display height
+FACE_W = 52
 
 # Locations
 GRID_LOC_X = BORDER
@@ -20,3 +21,5 @@ TIMER_LOC_X = grid_w - 64
 TIMER_LOC_Y = BORDER + 6
 MINE_COUNTER_LOC_X = BORDER + 6
 MINE_COUNTER_LOC_Y = BORDER + 6
+FACE_LOC_X = SCREEN_W / 2 - FACE_W / 2
+FACE_LOC_Y = (BORDER + TOP_AREA / 2) - FACE_W / 2

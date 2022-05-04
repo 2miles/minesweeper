@@ -1,8 +1,8 @@
 import pygame
-import random
 import vars
 
 from spritesheet import Spritesheet
+from grid import Grid
 
 pygame.init()
 display = pygame.display.set_mode((vars.SCREEN_W, vars.SCREEN_H))  # Create display
@@ -10,153 +10,6 @@ pygame.display.set_caption("Minesweeper")
 clock = pygame.time.Clock()  # create timer
 borders = Spritesheet.parse_border_sprites(Spritesheet)
 faces = Spritesheet.parse_face_sprites(Spritesheet)
-
-
-class Box:
-    def __init__(self, x, y, val):
-        self.x = x
-        self.y = y
-        self.val = val  # Number of bombs next to box, -1 is mine
-        self.rect = pygame.Rect(
-            self.x * vars.BOX_SIZE + vars.GRID_LOC_X,
-            self.y * vars.BOX_SIZE + vars.GRID_LOC_Y,
-            vars.BOX_SIZE,
-            vars.BOX_SIZE,
-        )
-        self.clicked = False  # Has box been clicked
-        self.mineClicked = False  # Has box been clicked and its a mine
-        self.mineFalse = False  # Has player flagged the wrong box without bomb
-        self.flag = False  # Has player flagged the box
-        self.sprites = Spritesheet.parse_box_sprites(Spritesheet)
-
-    def draw(self):
-        """
-        Draws a Box with a specific sprite depending on its value and its
-        boolean attributes mineFalse, clicked, mineClicked, and flag
-        """
-        surface = pygame.Surface((vars.BOX_SIZE, vars.BOX_SIZE))
-        if self.mineFalse:
-            surface.blit(self.sprites["box_no_bomb"], (0, 0))
-        else:
-            if self.clicked:
-                if self.val == -1:
-                    if self.mineClicked:
-                        surface.blit(self.sprites["box_red_bomb"], (0, 0))
-                    else:
-                        surface.blit(self.sprites["box_bomb"], (0, 0))
-                else:
-                    if self.val == 0:
-                        surface.blit(self.sprites["box_empty"], (0, 0))
-                    elif self.val == 1:
-                        surface.blit(self.sprites["box_1"], (0, 0))
-                    elif self.val == 2:
-                        surface.blit(self.sprites["box_2"], (0, 0))
-                    elif self.val == 3:
-                        surface.blit(self.sprites["box_3"], (0, 0))
-                    elif self.val == 4:
-                        surface.blit(self.sprites["box_4"], (0, 0))
-                    elif self.val == 5:
-                        surface.blit(self.sprites["box_5"], (0, 0))
-                    elif self.val == 6:
-                        surface.blit(self.sprites["box_6"], (0, 0))
-                    elif self.val == 7:
-                        surface.blit(self.sprites["box_7"], (0, 0))
-                    elif self.val == 8:
-                        surface.blit(self.sprites["box_8"], (0, 0))
-            else:
-                if self.flag:
-                    surface.blit(self.sprites["box_flag"], (0, 0))
-                else:
-                    surface.blit(self.sprites["box_full"], (0, 0))
-        return surface
-
-
-class Grid:
-    boxes = []
-    mines = []
-
-    def __init__(self, rows, cols, num_mines):
-        self.rows = rows
-        self.cols = cols
-        self.width = self.cols * vars.BOX_SIZE
-        self.height = self.rows * vars.BOX_SIZE
-        self.num_mines = num_mines
-        self.mines_left = num_mines
-        self.mines = self.generate_mines()
-        self.generate_boxes()
-        self.populate_values()
-        self.rect = (vars.GRID_LOC_X, vars.GRID_LOC_Y, self.width, self.height)
-
-    def generate_boxes(self):
-        for j in range(self.rows):
-            line = []
-            for i in range(self.cols):
-                if [i, j] in self.mines:
-                    line.append(Box(i, j, -1))
-                else:
-                    line.append(Box(i, j, 0))
-            self.boxes.append(line)
-
-    def generate_mines(self):
-        mines = [[random.randrange(0, self.cols), random.randrange(0, self.rows)]]
-        for _ in range(self.num_mines - 1):
-            pos = [random.randrange(0, self.cols), random.randrange(0, self.rows)]
-            complete = False
-            while not complete:
-                for i in range(len(mines)):
-                    if pos == mines[i]:
-                        pos = [
-                            random.randrange(0, self.cols),
-                            random.randrange(0, self.rows),
-                        ]
-                        break
-                    if i == len(mines) - 1:
-                        complete = True
-            mines.append(pos)
-        return mines
-
-    def populate_values(self):
-        """
-        Iterate through each Box in the Grid. For each Box that is not a bomb,
-        increment it's value for every bomb that is adjacent to it.
-        """
-        for lines in self.boxes:
-            for box in lines:
-                if box.val != -1:
-                    for j in range(-1, 2):
-                        if box.x + j >= 0 and box.x + j < self.cols:
-                            for i in range(-1, 2):
-                                if box.y + i >= 0 and box.y + i < self.rows:
-                                    if self.boxes[box.y + i][box.x + j].val == -1:
-                                        box.val += 1
-
-    def revealGrid(self, x, y):
-        """
-        Sets the box at argument coords clicked attribute to True.
-        If its not a mine, recursivly call revealGrid() on all adjacent boxes
-        that are not mines.
-        If it is a mine, reveal all mines.
-        """
-        self.boxes[y][x].clicked = True
-        if self.boxes[y][x].val == 0:
-            for j in range(-1, 2):
-                if x + j >= 0 and x + j < self.cols:
-                    for i in range(-1, 2):
-                        if y + i >= 0 and y + i < self.rows:
-                            if not self.boxes[y + i][x + j].clicked:
-                                self.revealGrid(x + j, y + i)
-        # If you click on a mine reveal all the mines
-        elif self.boxes[y][x].val == -1:
-            for m in self.mines:
-                if not self.boxes[m[1]][m[0]].clicked:
-                    self.revealGrid(m[0], m[1])
-
-    def draw(self):
-        surface = pygame.Surface((self.width, self.height))
-        for line in Grid.boxes:
-            for box in line:
-                surface.blit(box.draw(), (box.x * vars.BOX_SIZE, box.y * vars.BOX_SIZE))
-        return surface
 
 
 class Status:
@@ -207,12 +60,7 @@ def draw_background(game_state):
     surface = pygame.Surface((vars.SCREEN_W, vars.SCREEN_H))
     surface.fill(vars.BG_COLOR)
 
-    faces_x_center = faces["face_smile"].get_width() / 2
-    screen_x_center = vars.SCREEN_W / 2
-    top_area_y_center = 22 + vars.TOP_AREA / 2
-    face_x = screen_x_center - faces_x_center
-    face_y = top_area_y_center - faces_x_center
-    surface.blit(draw_face(game_state), (face_x, face_y))
+    surface.blit(draw_face(game_state), (vars.FACE_LOC_X, vars.FACE_LOC_Y))
 
     for i in range(vars.ROWS + 4):
         surface.blit(borders["vertical_bar"], (vars.grid_w + vars.BORDER, i * 32))
