@@ -83,6 +83,11 @@ class Grid:
             for m in self.mines:
                 if not self.boxes[m[1]][m[0]].clicked:
                     self.revealGrid(m[0], m[1])
+            # reveal all the missplaced flags
+            for line in self.boxes:
+                for box in line:
+                    if box.flag and box.val != -1:
+                        box.mineFalse = True
 
     def draw(self):
         surface = pygame.Surface((self.width, self.height))
