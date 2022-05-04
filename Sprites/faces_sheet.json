@@ -1,0 +1,36 @@
+{
+    "frames": {
+        "face_smile.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 52,
+                "h": 52
+            }
+        },
+        "face_dead.png": {
+            "frame": {
+                "x": 52,
+                "y": 0,
+                "w": 52,
+                "h": 52
+            }
+        },
+        "face_supprise.png": {
+            "frame": {
+                "x": 104,
+                "y": 0,
+                "w": 52,
+                "h": 52
+            }
+        },
+        "face_win.png": {
+            "frame": {
+                "x": 156,
+                "y": 0,
+                "w": 52,
+                "h": 52
+            }
+        }
+    }
+}
