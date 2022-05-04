@@ -1,3 +1,4 @@
+from sysconfig import get_path_names
 import pygame
 import random
 
@@ -13,14 +14,16 @@ BG_COLOR = (192, 192, 192)
 BOX_SIZE = 32
 BORDER = 22
 TOP_AREA = BOX_SIZE * 2
-GRID_X = BORDER
-GRID_Y = TOP_AREA + BORDER * 2
-
-
 grid_w = COLS * BOX_SIZE
 grid_h = ROWS * BOX_SIZE
+GRID_LOC_X = BORDER
+GRID_LOC_Y = TOP_AREA + BORDER * 2
 SCREEN_W = grid_w + BORDER * 2  # Display width
-SCREEN_H = grid_h + GRID_Y + BORDER  # Display height
+SCREEN_H = grid_h + GRID_LOC_Y + BORDER  # Display height
+TIMER_LOC_X = grid_w - 64
+TIMER_LOC_Y = BORDER + 6
+MINE_COUNTER_LOC_X = BORDER + 6
+MINE_COUNTER_LOC_Y = BORDER + 6
 
 
 display = pygame.display.set_mode((SCREEN_W, SCREEN_H))  # Create display
@@ -29,6 +32,7 @@ clock = pygame.time.Clock()  # create timer
 
 
 borders = Spritesheet.parse_border_sprites(Spritesheet)
+faces = Spritesheet.parse_face_sprites(Spritesheet)
 
 
 class Box:
@@ -38,7 +42,7 @@ class Box:
         self.val = val  # Number of bombs next to box, -1 is mine
         self.rect = pygame.Rect(
             self.x * BOX_SIZE + BORDER,
-            self.y * BOX_SIZE + GRID_Y,
+            self.y * BOX_SIZE + GRID_LOC_Y,
             BOX_SIZE,
             BOX_SIZE,
         )
@@ -104,7 +108,7 @@ class Grid:
         self.mines = self.generate_mines()
         self.generate_boxes()
         self.populate_values()
-        self.rect = (GRID_X, GRID_Y, self.width, self.height)
+        self.rect = (GRID_LOC_X, GRID_LOC_Y, self.width, self.height)
 
     def generate_boxes(self):
         for j in range(self.rows):
@@ -208,22 +212,41 @@ class Status:
         return surface
 
 
-def draw_background():
+def draw_face(game_state):
+    surface = pygame.Surface((52, 52))
+    if game_state == "Game Over":
+        surface.blit(faces["face_dead"], (0, 0))
+    elif game_state == "Win":
+        surface.blit(faces["face_win"], (0, 0))
+    else:
+        surface.blit(faces["face_smile"], (0, 0))
+    return surface
+
+
+def draw_background(game_state):
     """
     Draw the background by patching together the sprites from border_sheet.png
     """
     surface = pygame.Surface((SCREEN_W, SCREEN_H))
     surface.fill(BG_COLOR)
+
+    faces_x_center = faces["face_smile"].get_width() / 2
+    screen_x_center = SCREEN_W / 2
+    top_area_y_center = 22 + TOP_AREA / 2
+    face_x = screen_x_center - faces_x_center
+    face_y = top_area_y_center - faces_x_center
+    surface.blit(draw_face(game_state), (face_x, face_y))
+
     for i in range(ROWS + 4):
         surface.blit(borders["vertical_bar"], (grid_w + BORDER, i * 32))
         surface.blit(borders["vertical_bar"], (0, i * 32))
     for i in range(COLS + 2):
         surface.blit(borders["horizontal_bar"], (i * 32, 0))
         surface.blit(borders["horizontal_bar"], (i * 32, BORDER + TOP_AREA))
-        surface.blit(borders["horizontal_bar"], (i * 32, GRID_Y + grid_h))
+        surface.blit(borders["horizontal_bar"], (i * 32, GRID_LOC_Y + grid_h))
     surface.blit(borders["top_left"], (0, 0))
     surface.blit(borders["top_right"], (grid_w + BORDER, 0))
-    surface.blit(borders["bottom_left"], (0, grid_h + GRID_Y))
+    surface.blit(borders["bottom_left"], (0, grid_h + GRID_LOC_Y))
     surface.blit(borders["bottom_right"], (grid_w + BORDER, SCREEN_H - BORDER))
     surface.blit(borders["left_t"], (0, TOP_AREA + BORDER))
     surface.blit(borders["right_t"], (grid_w + BORDER, TOP_AREA + BORDER))
@@ -233,7 +256,6 @@ def draw_background():
 def gameLoop():
     gameState = "Playing"  # Game state
     seconds = 0
-    score = 0
 
     grid = Grid(ROWS, COLS, MINES)
     timer = Status(grid_w - 64, BORDER + 6)
@@ -284,7 +306,7 @@ def gameLoop():
                                             box.flag = True
                                             grid.mines_left -= 1
 
-        display.blit(draw_background(), (0, 0))
+        display.blit(draw_background(gameState), (0, 0))
         display.blit(timer.draw(), (timer.rect))
         display.blit(remaining.draw(), (remaining.rect))
         display.blit(grid.draw(), (grid.rect))
