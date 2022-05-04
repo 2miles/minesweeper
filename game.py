@@ -43,11 +43,16 @@ class Status:
 
 
 def draw_face(game_state):
+    """
+    Draws the center face according to the current game state
+    """
     surface = pygame.Surface((52, 52))
     if game_state == "Game Over":
         surface.blit(faces["face_dead"], (0, 0))
     elif game_state == "Win":
         surface.blit(faces["face_win"], (0, 0))
+    elif game_state == "Mouse down":
+        surface.blit(faces["face_supprise"], (0, 0))
     else:
         surface.blit(faces["face_smile"], (0, 0))
     return surface
@@ -111,7 +116,10 @@ def gameLoop():
                         gameState = "Exit"
                         gameLoop()
             else:
-                if event.type == pygame.MOUSEBUTTONUP:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    gameState = "Mouse down"
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    gameState = "Playing"
                     for line in grid.boxes:
                         for box in line:
                             if box.rect.collidepoint(event.pos):
