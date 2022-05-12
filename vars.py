@@ -1,6 +1,6 @@
 COLS = 20  # number of cols in grid
 ROWS = 10  # number of rows in grid
-MINES = 20  # number of mines placed
+MINES = 5  # number of mines placed
 
 BG_COLOR = (192, 192, 192)
 
