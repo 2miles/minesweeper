@@ -3,11 +3,15 @@ import vars
 
 from spritesheet import Spritesheet
 from grid import Grid
+from debug import debug
+
+# Create funtion to draw texts
 
 pygame.init()
 display = pygame.display.set_mode((vars.SCREEN_W, vars.SCREEN_H))  # Create display
 pygame.display.set_caption("Minesweeper")
 clock = pygame.time.Clock()  # create timer
+
 borders = Spritesheet.parse_border_sprites(Spritesheet)
 faces = Spritesheet.parse_face_sprites(Spritesheet)
 
@@ -60,7 +64,7 @@ def draw_face(game_state):
 
 def draw_background(game_state):
     """
-    Draw the background by patching together the sprites from border_sheet.png
+    Draw the background by patching together sprites from border_sheet.png
     """
     surface = pygame.Surface((vars.SCREEN_W, vars.SCREEN_H))
     surface.fill(vars.BG_COLOR)
@@ -102,7 +106,6 @@ def gameLoop():
         seconds += 1
         if seconds % 60 == 0:
             timer.update(seconds // 60)
-
         remaining.update(grid.mines_left)
         for event in pygame.event.get():
             # Check if player close window
@@ -141,6 +144,7 @@ def gameLoop():
                                             box.flag = False
                                             grid.mines_left += 1
                                         else:
+                                            print("decrement bombs")
                                             box.flag = True
                                             grid.mines_left -= 1
 
@@ -148,6 +152,13 @@ def gameLoop():
         display.blit(timer.draw(), (timer.rect))
         display.blit(remaining.draw(), (remaining.rect))
         display.blit(grid.draw(), (grid.rect))
+
+        debug(pygame.mouse.get_pos())
+        debug(pygame.mouse.get_pressed(), 40)
+        debug(gameState, 80)
+        debug(grid.mines_left, 120)
+        # debug("mouse", pygame.mouse.get_pos()[1], pygame.mouse.get_pos()[0])
+
         pygame.display.update()  # Update screen
 
 
