@@ -92,6 +92,7 @@ def draw_background(game_state):
     return surface
 
 
+# Create funtion to draw texts
 def gameLoop():
     gameState = "Playing"  # Game state
     seconds = 0
