@@ -93,21 +93,34 @@ def draw_background(game_state):
 
 
 # Create funtion to draw texts
+def drawText(txt, s):
+    screen_text = pygame.font.SysFont("Calibri", s, True).render(
+        txt, True, (255, 255, 255)
+    )
+    rect = screen_text.get_rect()
+    surface = pygame.Surface((rect.width, rect.height))
+    surface.fill((100, 100, 100))
+    surface.blit(screen_text, (0, 0))
+    return surface
+
+
 def gameLoop():
     gameState = "Playing"  # Game state
     seconds = 0
 
     grid = Grid(vars.ROWS, vars.COLS, vars.MINES)
-    timer = Status(vars.grid_w - 64, vars.BORDER + 6)
-    remaining = Status(vars.BORDER + 6, vars.BORDER + 6)
+    timer = Status(vars.TIMER_LOC_X, vars.TIMER_LOC_Y)
+    remaining = Status(vars.TIMER_LOC_Y, vars.TIMER_LOC_Y)
 
     while gameState != "Exit":
         # Reset screen
         clock.tick(60)  # Tick fps
         seconds += 1
         if seconds % 60 == 0:
-            timer.update(seconds // 60)
+            if gameState != "Win":
+                timer.update(seconds // 60)
         remaining.update(grid.mines_left)
+
         for event in pygame.event.get():
             # Check if player close window
             if event.type == pygame.QUIT:
@@ -120,10 +133,7 @@ def gameLoop():
                         gameState = "Exit"
                         gameLoop()
             else:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    gameState = "Mouse down"
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    gameState = "Playing"
+                if event.type == pygame.MOUSEBUTTONUP:
                     for line in grid.boxes:
                         for box in line:
                             if box.rect.collidepoint(event.pos):
@@ -145,14 +155,39 @@ def gameLoop():
                                             box.flag = False
                                             grid.mines_left += 1
                                         else:
-                                            print("decrement bombs")
                                             box.flag = True
                                             grid.mines_left -= 1
+
+        # check for win
+        finished = True
+        for line in grid.boxes:
+            for box in line:
+                if box.val != -1 and not box.clicked:
+                    finished = False
+        if finished and gameState != "Exit":
+            if grid.mines_left == 0:
+                gameState = "Win"
 
         display.blit(draw_background(gameState), (0, 0))
         display.blit(timer.draw(), (timer.rect))
         display.blit(remaining.draw(), (remaining.rect))
         display.blit(grid.draw(), (grid.rect))
+        if gameState == "Win":
+            display.blit(
+                drawText("You Won!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
+            )
+            display.blit(
+                drawText("R to restart", 50),
+                (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
+            )
+        if gameState == "Game Over":
+            display.blit(
+                drawText("Game over!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
+            )
+            display.blit(
+                drawText("R to restart", 50),
+                (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
+            )
 
         debug(pygame.mouse.get_pos())
         debug(pygame.mouse.get_pressed(), 40)
