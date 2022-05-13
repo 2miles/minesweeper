@@ -1,3 +1,5 @@
+DEBUG = False
+
 COLS = 20  # number of cols in grid
 ROWS = 10  # number of rows in grid
 MINES = 5  # number of mines placed

@@ -107,6 +107,7 @@ def drawText(txt, s):
 def gameLoop():
     gameState = "Playing"  # Game state
     seconds = 0
+    final_score = 0
 
     grid = Grid(vars.ROWS, vars.COLS, vars.MINES)
     timer = Status(vars.TIMER_LOC_X, vars.TIMER_LOC_Y)
@@ -117,8 +118,9 @@ def gameLoop():
         clock.tick(60)  # Tick fps
         seconds += 1
         if seconds % 60 == 0:
-            if gameState != "Win":
+            if gameState == "Playing":
                 timer.update(seconds // 60)
+                final_score = seconds // 60
         remaining.update(grid.mines_left)
 
         for event in pygame.event.get():
@@ -157,22 +159,26 @@ def gameLoop():
                                         else:
                                             box.flag = True
                                             grid.mines_left -= 1
+
         # check for win
         if gameState != "Exit":
             if grid.check_for_win():
                 gameState = "Win"
 
+        # render stuff to the screen
         display.blit(draw_background(gameState), (0, 0))
         display.blit(timer.draw(), (timer.rect))
         display.blit(remaining.draw(), (remaining.rect))
         display.blit(grid.draw(), (grid.rect))
         if gameState == "Win":
+            display.blit(drawText("You Won!", 50), (vars.BORDER, vars.SCREEN_H // 2))
             display.blit(
-                drawText("You Won!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
+                drawText(f"Your Score is {final_score}", 50),
+                (vars.BORDER, vars.SCREEN_H // 2 + 50),
             )
             display.blit(
                 drawText("R to restart", 50),
-                (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
+                (vars.BORDER, vars.SCREEN_H // 2 + 100),
             )
         if gameState == "Game Over":
             display.blit(
@@ -183,11 +189,14 @@ def gameLoop():
                 (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
             )
 
-        debug(gameState, 80)
-        # debug(grid.mines_left, 120)
-        # debug("mouse", pygame.mouse.get_pos()[1], pygame.mouse.get_pos()[0])
+        if vars.DEBUG:
+            debug(gameState, 0)
+            debug(grid.mines_left, 40)
+            debug(pygame.mouse.get_pos(), 80)
+            debug(pygame.mouse.get_pressed(), 120)
 
-        pygame.display.update()  # Update screen
+        # update screen
+        pygame.display.update()
 
 
 gameLoop()
