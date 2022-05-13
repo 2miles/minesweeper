@@ -5,12 +5,11 @@ import random
 
 
 class Grid:
-    boxes = []
-    mines = []
-
     def __init__(self, rows, cols, num_mines):
         self.rows = rows
         self.cols = cols
+        self.boxes = []
+        self.mines = []
         self.width = self.cols * vars.BOX_SIZE
         self.height = self.rows * vars.BOX_SIZE
         self.num_mines = num_mines
@@ -91,7 +90,7 @@ class Grid:
 
     def draw(self):
         surface = pygame.Surface((self.width, self.height))
-        for line in Grid.boxes:
+        for line in self.boxes:
             for box in line:
                 surface.blit(box.draw(), (box.x * vars.BOX_SIZE, box.y * vars.BOX_SIZE))
         return surface
