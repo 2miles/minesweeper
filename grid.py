@@ -88,6 +88,17 @@ class Grid:
                     if box.flag and box.val != -1:
                         box.mineFalse = True
 
+    def check_for_win(self):
+        finished = True
+        for line in self.boxes:
+            for box in line:
+                if box.val != -1 and not box.clicked:
+                    finished = False
+        if finished:
+            if self.mines_left == 0:
+                return True
+        return False
+
     def draw(self):
         surface = pygame.Surface((self.width, self.height))
         for line in self.boxes:

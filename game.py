@@ -157,15 +157,9 @@ def gameLoop():
                                         else:
                                             box.flag = True
                                             grid.mines_left -= 1
-
         # check for win
-        finished = True
-        for line in grid.boxes:
-            for box in line:
-                if box.val != -1 and not box.clicked:
-                    finished = False
-        if finished and gameState != "Exit":
-            if grid.mines_left == 0:
+        if gameState != "Exit":
+            if grid.check_for_win():
                 gameState = "Win"
 
         display.blit(draw_background(gameState), (0, 0))
@@ -189,10 +183,8 @@ def gameLoop():
                 (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
             )
 
-        debug(pygame.mouse.get_pos())
-        debug(pygame.mouse.get_pressed(), 40)
         debug(gameState, 80)
-        debug(grid.mines_left, 120)
+        # debug(grid.mines_left, 120)
         # debug("mouse", pygame.mouse.get_pos()[1], pygame.mouse.get_pos()[0])
 
         pygame.display.update()  # Update screen
