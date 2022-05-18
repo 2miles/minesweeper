@@ -130,6 +130,34 @@ class Game:
         """
         Processes events in the event queue.
         """
+
+        def toggle_flag(box):
+            """
+            Toggle flag of un-clicked box. If placing a flag then decrement mines left,
+            else increment
+            """
+            if not box.clicked:
+                if box.flag:
+                    box.flag = False
+                    self.grid.mines_left += 1
+                else:
+                    box.flag = True
+                    self.grid.mines_left -= 1
+
+        def reveal_box(box):
+            """
+            Reveal grid around box. If box if flagged and not a bomb then remove flag.
+            If box is a bomb, regardless whether or not it is flagged, then game over.
+            """
+            self.grid.revealGrid(box.x, box.y)
+            if box.flag:
+                self.grid.mines_left += 1
+                box.flag = False
+            if box.val == -1:
+                # left click on a mine
+                self.game_state = GameState.GAME_OVER
+                box.mineClicked = True
+
         for event in pygame.event.get():
             # Check if player close window
             if event.type == pygame.QUIT:
@@ -150,25 +178,10 @@ class Game:
                     for line in self.grid.boxes:
                         for box in line:
                             if box.rect.collidepoint(event.pos):
-                                if event.button == 1:
-                                    # Left click on a box
-                                    self.grid.revealGrid(box.x, box.y)
-                                    if box.flag:
-                                        self.grid.mines_left += 1
-                                        box.flag = False
-                                    if box.val == -1:
-                                        # left click on a mine
-                                        self.game_state = GameState.GAME_OVER
-                                        box.mineClicked = True
-                                elif event.button == 3:
-                                    # right click
-                                    if not box.clicked:
-                                        if box.flag:
-                                            box.flag = False
-                                            self.grid.mines_left += 1
-                                        else:
-                                            box.flag = True
-                                            self.grid.mines_left -= 1
+                                if event.button == 1:  # Left click
+                                    reveal_box(box)
+                                elif event.button == 3:  # right click
+                                    toggle_flag(box)
 
     def check_for_win(self):
         """
