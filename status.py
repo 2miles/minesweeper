@@ -1,5 +1,5 @@
 from spritesheet import Spritesheet
-import vars
+from gamestate import GameState
 import pygame
 
 
@@ -44,14 +44,14 @@ class Faces:
         Draws the center face according to the current game state
         """
         surface = pygame.Surface((self.sprite_w, self.sprite_h))
-        if game_state == "Game Over":
-            surface.blit(self.sprites["face_dead"], (0, 0))
-        elif game_state == "Win":
-            surface.blit(self.sprites["face_win"], (0, 0))
-        elif game_state == "Mouse down":
-            surface.blit(self.sprites["face_supprise"], (0, 0))
+        if game_state == GameState.GAME_OVER:
+            surface.blit(self.sprites["dead"], (0, 0))
+        elif game_state == GameState.WIN:
+            surface.blit(self.sprites["win"], (0, 0))
+        elif game_state == GameState.MOUSE_DOWN:
+            surface.blit(self.sprites["supprise"], (0, 0))
         else:
-            surface.blit(self.sprites["face_smile"], (0, 0))
+            surface.blit(self.sprites["smile"], (0, 0))
         return surface
 
     class GameOverText:

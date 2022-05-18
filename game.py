@@ -1,7 +1,7 @@
 import pygame
 import vars
-from enum import Enum
 
+from gamestate import GameState
 from grid import Grid
 from status import Status, Faces
 from background import Background
@@ -9,23 +9,6 @@ from debug import debug
 
 
 # Create funtion to draw texts
-def drawText(txt, s):
-    screen_text = pygame.font.SysFont("Calibri", s, True).render(
-        txt, True, (255, 255, 255)
-    )
-    rect = screen_text.get_rect()
-    surface = pygame.Surface((rect.width, rect.height))
-    surface.fill((100, 100, 100))
-    surface.blit(screen_text, (0, 0))
-    return surface
-
-
-class GameState(Enum):
-    EXIT = -1
-    PLAYING = 1
-    MOUSE_DOWN = 2
-    WIN = 3
-    GAME_OVER = 4
 
 
 class Game:
@@ -38,11 +21,9 @@ class Game:
         self.clock = pygame.time.Clock()  # create timer
 
     def new_game(self):
-
         self.seconds = 0
         self.final_score = 0
         self.game_state = GameState.PLAYING
-
         self.background = Background()
         self.grid = Grid(vars.ROWS, vars.COLS, vars.MINES)
         self.timer = Status(vars.TIMER_LOC_X, vars.TIMER_LOC_Y)
@@ -63,36 +44,7 @@ class Game:
 
             self.check_events()
             self.check_for_win()
-
-            # render stuff to the screen
-            self.display.blit(self.background.draw(), (0, 0))
-            self.display.blit(
-                self.faces.draw(self.game_state), (vars.FACE_LOC_X, vars.FACE_LOC_Y)
-            )
-            self.display.blit(self.timer.draw(), (self.timer.rect))
-            self.display.blit(self.remaining.draw(), (self.remaining.rect))
-            self.display.blit(self.grid.draw(), (self.grid.rect))
-
-            if self.game_state == GameState.WIN:
-                self.display.blit(
-                    drawText("You Won!", 50), (vars.BORDER, vars.SCREEN_H // 2)
-                )
-                self.display.blit(
-                    drawText(f"Your Score is {self.final_score}", 50),
-                    (vars.BORDER, vars.SCREEN_H // 2 + 50),
-                )
-                self.display.blit(
-                    drawText("R to restart", 50),
-                    (vars.BORDER, vars.SCREEN_H // 2 + 100),
-                )
-            if self.game_state == GameState.GAME_OVER:
-                self.display.blit(
-                    drawText("Game over!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
-                )
-                self.display.blit(
-                    drawText("R to restart", 50),
-                    (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
-                )
+            self.draw()
 
             if vars.DEBUG:
                 debug(self.game_state, 0)
@@ -102,6 +54,51 @@ class Game:
 
             # update screen
             pygame.display.update()
+
+    def draw(self):
+        def drawText(txt, size):
+            screen_text = pygame.font.SysFont("Calibri", size, True).render(
+                txt, True, (255, 255, 255)
+            )
+            rect = screen_text.get_rect()
+            surface = pygame.Surface((rect.width, rect.height))
+            surface.fill((100, 100, 100))
+            surface.blit(screen_text, (0, 0))
+            return surface
+
+        def draw_win_message():
+            self.display.blit(
+                drawText("You Won!", 50), (vars.BORDER, vars.SCREEN_H // 2)
+            )
+            self.display.blit(
+                drawText(f"Your Score is {self.final_score}", 50),
+                (vars.BORDER, vars.SCREEN_H // 2 + 50),
+            )
+            self.display.blit(
+                drawText("R to restart", 50),
+                (vars.BORDER, vars.SCREEN_H // 2 + 100),
+            )
+
+        def draw_game_over_message():
+            self.display.blit(
+                drawText("Game over!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
+            )
+            self.display.blit(
+                drawText("R to restart", 50),
+                (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
+            )
+
+        self.display.blit(self.background.draw(), (0, 0))
+        self.display.blit(
+            self.faces.draw(self.game_state), (vars.FACE_LOC_X, vars.FACE_LOC_Y)
+        )
+        self.display.blit(self.timer.draw(), (self.timer.rect))
+        self.display.blit(self.remaining.draw(), (self.remaining.rect))
+        self.display.blit(self.grid.draw(), (self.grid.rect))
+        if self.game_state == GameState.WIN:
+            draw_win_message()
+        if self.game_state == GameState.GAME_OVER:
+            draw_game_over_message()
 
     def check_events(self):
         for event in pygame.event.get():
@@ -148,7 +145,6 @@ class Game:
                                             self.grid.mines_left -= 1
 
     def check_for_win(self):
-
         if self.game_state != GameState.EXIT:
             if self.grid.check_for_win():
                 self.game_state = GameState.WIN

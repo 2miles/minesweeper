@@ -77,9 +77,9 @@ class Spritesheet:
     def parse_face_sprites(self):
         sheet = Spritesheet("Sprites/faces_sheet.png")
         faces = {
-            "face_smile": sheet.parse_sprite("face_smile.png"),
-            "face_dead": sheet.parse_sprite("face_dead.png"),
-            "face_supprise": sheet.parse_sprite("face_supprise.png"),
-            "face_win": sheet.parse_sprite("face_win.png"),
+            "smile": sheet.parse_sprite("face_smile.png"),
+            "dead": sheet.parse_sprite("face_dead.png"),
+            "supprise": sheet.parse_sprite("face_supprise.png"),
+            "win": sheet.parse_sprite("face_win.png"),
         }
         return faces
