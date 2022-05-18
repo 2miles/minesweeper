@@ -4,7 +4,7 @@ import pygame
 
 def main():
     game = Game()
-    game.game_loop()
+    game.new_game()
     pygame.quit()
     quit()
 

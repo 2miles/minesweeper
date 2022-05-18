@@ -28,7 +28,7 @@ class Game:
         pygame.display.set_caption("Minesweeper")
         self.clock = pygame.time.Clock()  # create timer
 
-    def game_loop(self):
+    def new_game(self):
 
         self.seconds = 0
         self.final_score = 0
@@ -39,7 +39,9 @@ class Game:
         self.timer = Status(vars.TIMER_LOC_X, vars.TIMER_LOC_Y)
         self.remaining = Status(vars.TIMER_LOC_Y, vars.TIMER_LOC_Y)
         self.faces = Faces(vars.FACE_LOC_X, vars.FACE_LOC_Y)
+        self.game_loop()
 
+    def game_loop(self):
         while self.game_state != "Exit":
             # Reset screen
             self.clock.tick(60)  # Tick fps
@@ -103,7 +105,7 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         self.game_state = "Exit"
-                        self.game_loop()
+                        self.new_game()
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.game_state = "Mouse down"
