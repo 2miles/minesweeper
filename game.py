@@ -21,6 +21,10 @@ class Game:
         self.clock = pygame.time.Clock()  # create timer
 
     def new_game(self):
+        """
+        Instantiates game objects and initializes time, score, gameState,
+        then starts the game loop
+        """
         self.seconds = 0
         self.final_score = 0
         self.game_state = GameState.PLAYING
@@ -32,12 +36,19 @@ class Game:
         self.game_loop()
 
     def game_loop(self):
+        """
+        Main game loop. Manages game clock, updates numerical displays, checks events,
+        checks for win, updates display
+        """
         while self.game_state != GameState.EXIT:
             # Reset screen
             self.clock.tick(60)  # Tick fps
             self.seconds += 1
             if self.seconds % 60 == 0:
-                if self.game_state == GameState.PLAYING:
+                if (
+                    self.game_state != GameState.EXIT
+                    or self.game_state != GameState.WIN
+                ):
                     self.timer.update(self.seconds // 60)
                     self.final_score = self.seconds // 60
             self.remaining.update(self.grid.mines_left)
@@ -56,7 +67,14 @@ class Game:
             pygame.display.update()
 
     def draw(self):
+        """
+        Draws all of the game elements on the screen.
+        """
+
         def drawText(txt, size):
+            """
+            Returns a surface with the given text. The text is on an opaque grey background
+            """
             screen_text = pygame.font.SysFont("Calibri", size, True).render(
                 txt, True, (255, 255, 255)
             )
@@ -67,6 +85,9 @@ class Game:
             return surface
 
         def draw_win_message():
+            """
+            Draws message over the screen when player wins
+            """
             self.display.blit(
                 drawText("You Won!", 50), (vars.BORDER, vars.SCREEN_H // 2)
             )
@@ -80,6 +101,9 @@ class Game:
             )
 
         def draw_game_over_message():
+            """
+            Draws message over screen when player looses
+            """
             self.display.blit(
                 drawText("Game over!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
             )
@@ -101,12 +125,13 @@ class Game:
             draw_game_over_message()
 
     def check_events(self):
+        """
+        Processes events in the event queue.
+        """
         for event in pygame.event.get():
             # Check if player close window
             if event.type == pygame.QUIT:
                 self.game_state = GameState.EXIT
-
-            # If game is over, user can press 'r' to restart
             if (
                 self.game_state == GameState.GAME_OVER
                 or self.game_state == GameState.WIN
@@ -124,18 +149,17 @@ class Game:
                         for box in line:
                             if box.rect.collidepoint(event.pos):
                                 if event.button == 1:
-                                    # If player left clicked on the box
+                                    # Left click on a box
                                     self.grid.revealGrid(box.x, box.y)
-                                    # Toggle flag off
                                     if box.flag:
                                         self.grid.mines_left += 1
                                         box.flag = False
-                                    # If it's a mine
                                     if box.val == -1:
+                                        # left click on a mine
                                         self.game_state = GameState.GAME_OVER
                                         box.mineClicked = True
                                 elif event.button == 3:
-                                    # If the player right clicked
+                                    # right click
                                     if not box.clicked:
                                         if box.flag:
                                             box.flag = False
@@ -145,6 +169,9 @@ class Game:
                                             self.grid.mines_left -= 1
 
     def check_for_win(self):
+        """
+        Sets GameState to WIN if grid.check_for_win() return True
+        """
         if self.game_state != GameState.EXIT:
             if self.grid.check_for_win():
                 self.game_state = GameState.WIN
