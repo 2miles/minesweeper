@@ -6,7 +6,7 @@ font = pygame.font.Font(None, 30)
 
 def debug(info, y=10, x=10):
     """
-    Draws any game info to the screen, used for debugging
+    Draws any game info to the main screen, used for debugging
     """
     display_surf = pygame.display.get_surface()
     debug_surf = font.render(str(info), True, "white")

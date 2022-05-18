@@ -52,18 +52,10 @@ class Game:
                     self.timer.update(self.seconds // 60)
                     self.final_score = self.seconds // 60
             self.remaining.update(self.grid.mines_left)
-
             self.check_events()
             self.check_for_win()
             self.draw()
-
-            if vars.DEBUG:
-                debug(self.game_state, 0)
-                debug(self.grid.mines_left, 40)
-                debug(pygame.mouse.get_pos(), 80)
-                debug(pygame.mouse.get_pressed(), 120)
-
-            # update screen
+            self.draw_debug_info()
             pygame.display.update()
 
     def draw(self):
@@ -123,6 +115,16 @@ class Game:
             draw_win_message()
         if self.game_state == GameState.GAME_OVER:
             draw_game_over_message()
+
+    def draw_debug_info(self):
+        """
+        Draws debug info to the main display, if DEBUG is set to true
+        """
+        if vars.DEBUG:
+            debug(self.game_state, 0)
+            debug(self.grid.mines_left, 40)
+            debug(pygame.mouse.get_pos(), 80)
+            debug(pygame.mouse.get_pressed(), 120)
 
     def check_events(self):
         """
