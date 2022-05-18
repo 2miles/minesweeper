@@ -1,5 +1,6 @@
 import pygame
 import vars
+from enum import Enum
 
 from grid import Grid
 from status import Status, Faces
@@ -19,6 +20,14 @@ def drawText(txt, s):
     return surface
 
 
+class GameState(Enum):
+    EXIT = -1
+    PLAYING = 1
+    MOUSE_DOWN = 2
+    WIN = 3
+    GAME_OVER = 4
+
+
 class Game:
     def __init__(self) -> None:
         pygame.init()
@@ -32,7 +41,7 @@ class Game:
 
         self.seconds = 0
         self.final_score = 0
-        self.game_state = "Playing"
+        self.game_state = GameState.PLAYING
 
         self.background = Background()
         self.grid = Grid(vars.ROWS, vars.COLS, vars.MINES)
@@ -42,12 +51,12 @@ class Game:
         self.game_loop()
 
     def game_loop(self):
-        while self.game_state != "Exit":
+        while self.game_state != GameState.EXIT:
             # Reset screen
             self.clock.tick(60)  # Tick fps
             self.seconds += 1
             if self.seconds % 60 == 0:
-                if self.game_state == "Playing":
+                if self.game_state == GameState.PLAYING:
                     self.timer.update(self.seconds // 60)
                     self.final_score = self.seconds // 60
             self.remaining.update(self.grid.mines_left)
@@ -64,7 +73,7 @@ class Game:
             self.display.blit(self.remaining.draw(), (self.remaining.rect))
             self.display.blit(self.grid.draw(), (self.grid.rect))
 
-            if self.game_state == "Win":
+            if self.game_state == GameState.WIN:
                 self.display.blit(
                     drawText("You Won!", 50), (vars.BORDER, vars.SCREEN_H // 2)
                 )
@@ -76,7 +85,7 @@ class Game:
                     drawText("R to restart", 50),
                     (vars.BORDER, vars.SCREEN_H // 2 + 100),
                 )
-            if self.game_state == "Game Over":
+            if self.game_state == GameState.GAME_OVER:
                 self.display.blit(
                     drawText("Game over!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
                 )
@@ -98,19 +107,22 @@ class Game:
         for event in pygame.event.get():
             # Check if player close window
             if event.type == pygame.QUIT:
-                self.game_state = "Exit"
+                self.game_state = GameState.EXIT
 
             # If game is over, user can press 'r' to restart
-            if self.game_state == "Game Over" or self.game_state == "Win":
+            if (
+                self.game_state == GameState.GAME_OVER
+                or self.game_state == GameState.WIN
+            ):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
-                        self.game_state = "Exit"
+                        self.game_state = GameState.EXIT
                         self.new_game()
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.game_state = "Mouse down"
+                    self.game_state = GameState.MOUSE_DOWN
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    self.game_state = "Playing"
+                    self.game_state = GameState.PLAYING
                     for line in self.grid.boxes:
                         for box in line:
                             if box.rect.collidepoint(event.pos):
@@ -123,7 +135,7 @@ class Game:
                                         box.flag = False
                                     # If it's a mine
                                     if box.val == -1:
-                                        self.game_state = "Game Over"
+                                        self.game_state = GameState.GAME_OVER
                                         box.mineClicked = True
                                 elif event.button == 3:
                                     # If the player right clicked
@@ -136,7 +148,7 @@ class Game:
                                             self.grid.mines_left -= 1
 
     def check_for_win(self):
-        # check for win
-        if self.game_state != "Exit":
+
+        if self.game_state != GameState.EXIT:
             if self.grid.check_for_win():
-                self.game_state = "Win"
+                self.game_state = GameState.WIN
