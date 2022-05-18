@@ -50,50 +50,8 @@ class Game:
                     self.final_score = self.seconds // 60
             self.remaining.update(self.grid.mines_left)
 
-            for event in pygame.event.get():
-                # Check if player close window
-                if event.type == pygame.QUIT:
-                    self.game_state = "Exit"
-
-                # If game is over, user can press 'r' to restart
-                if self.game_state == "Game Over" or self.game_state == "Win":
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_r:
-                            self.game_state = "Exit"
-                            self.game_loop()
-                else:
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        self.game_state = "Mouse down"
-                    elif event.type == pygame.MOUSEBUTTONUP:
-                        self.game_state = "Playing"
-                        for line in self.grid.boxes:
-                            for box in line:
-                                if box.rect.collidepoint(event.pos):
-                                    if event.button == 1:
-                                        # If player left clicked on the box
-                                        self.grid.revealGrid(box.x, box.y)
-                                        # Toggle flag off
-                                        if box.flag:
-                                            self.grid.mines_left += 1
-                                            box.flag = False
-                                        # If it's a mine
-                                        if box.val == -1:
-                                            self.game_state = "Game Over"
-                                            box.mineClicked = True
-                                    elif event.button == 3:
-                                        # If the player right clicked
-                                        if not box.clicked:
-                                            if box.flag:
-                                                box.flag = False
-                                                self.grid.mines_left += 1
-                                            else:
-                                                box.flag = True
-                                                self.grid.mines_left -= 1
-
-            # check for win
-            if self.game_state != "Exit":
-                if self.grid.check_for_win():
-                    self.game_state = "Win"
+            self.check_events()
+            self.check_for_win()
 
             # render stuff to the screen
             self.display.blit(self.background.draw(), (0, 0))
@@ -103,6 +61,7 @@ class Game:
             self.display.blit(self.timer.draw(), (self.timer.rect))
             self.display.blit(self.remaining.draw(), (self.remaining.rect))
             self.display.blit(self.grid.draw(), (self.grid.rect))
+
             if self.game_state == "Win":
                 self.display.blit(
                     drawText("You Won!", 50), (vars.BORDER, vars.SCREEN_H // 2)
@@ -132,3 +91,50 @@ class Game:
 
             # update screen
             pygame.display.update()
+
+    def check_events(self):
+        for event in pygame.event.get():
+            # Check if player close window
+            if event.type == pygame.QUIT:
+                self.game_state = "Exit"
+
+            # If game is over, user can press 'r' to restart
+            if self.game_state == "Game Over" or self.game_state == "Win":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        self.game_state = "Exit"
+                        self.game_loop()
+            else:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.game_state = "Mouse down"
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    self.game_state = "Playing"
+                    for line in self.grid.boxes:
+                        for box in line:
+                            if box.rect.collidepoint(event.pos):
+                                if event.button == 1:
+                                    # If player left clicked on the box
+                                    self.grid.revealGrid(box.x, box.y)
+                                    # Toggle flag off
+                                    if box.flag:
+                                        self.grid.mines_left += 1
+                                        box.flag = False
+                                    # If it's a mine
+                                    if box.val == -1:
+                                        self.game_state = "Game Over"
+                                        box.mineClicked = True
+                                elif event.button == 3:
+                                    # If the player right clicked
+                                    if not box.clicked:
+                                        if box.flag:
+                                            box.flag = False
+                                            self.grid.mines_left += 1
+                                        else:
+                                            box.flag = True
+                                            self.grid.mines_left -= 1
+
+    def check_for_win(self):
+        # check for win
+        if self.game_state != "Exit":
+            if self.grid.check_for_win():
+                self.game_state = "Win"
