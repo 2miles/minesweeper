@@ -3,6 +3,12 @@ import json
 
 
 class Spritesheet:
+    """
+    Defines the spritesheet manager.
+    Used to convert each spritesheet into an dictionary of images by parsing the associated
+    JSON metadata file.
+    """
+
     def __init__(self, filename):
         self.filename = filename
         self.sprite_sheet = pygame.image.load(filename).convert()
@@ -11,19 +17,30 @@ class Spritesheet:
             self.data = json.load(f)
         f.close()
 
-    def get_sprite(self, x, y, w, h):
-        sprite = pygame.Surface((w, h))
-        sprite.set_colorkey((0, 0, 255))  # sets a color to show empyness
-        sprite.blit(self.sprite_sheet, (0, 0), (x, y, w, h))
-        return sprite
-
     def parse_sprite(self, name):
+        """
+        Parses the JSON metadata for the x, y, w, h of the image with the given name.
+        Returns the image.
+        """
+
+        def get_sprite(self, x, y, w, h):
+            """
+            Returns a surface with image of the specific x, y, w, h from a spritesheet.
+            """
+            sprite = pygame.Surface((w, h))
+            sprite.set_colorkey((0, 0, 255))  # sets a color to show empyness
+            sprite.blit(self.sprite_sheet, (0, 0), (x, y, w, h))
+            return sprite
+
         sprite = self.data["frames"][name]["frame"]
         x, y, w, h = sprite["x"], sprite["y"], sprite["w"], sprite["h"]
-        image = self.get_sprite(x, y, w, h)
+        image = get_sprite(x, y, w, h)
         return image
 
     def parse_box_sprites(self):
+        """
+        Returns a dictionary of all the individual sprites from the box spritesheet.
+        """
         sheet = Spritesheet("Sprites/box_sheet.png")
         sprites = {
             "box_empty": sheet.parse_sprite("box_empty.png"),
@@ -44,6 +61,9 @@ class Spritesheet:
         return sprites
 
     def parse_number_sprites(self):
+        """
+        Returns a dictionary of all the individual sprites from the numbers spritesheet.
+        """
         sheet = Spritesheet("Sprites/number_sheet.png")
         sprites = [
             sheet.parse_sprite("number_none.png"),
@@ -61,6 +81,9 @@ class Spritesheet:
         return sprites
 
     def parse_border_sprites(self):
+        """
+        Returns a dictionary of all the individual sprites from the borders spritesheet.
+        """
         sheet = Spritesheet("Sprites/border_sheet.png")
         borders = {
             "top_left": sheet.parse_sprite("top_left.png"),
@@ -75,6 +98,9 @@ class Spritesheet:
         return borders
 
     def parse_face_sprites(self):
+        """
+        Returns a dictionary of all the individual sprites from the faces spritesheet.
+        """
         sheet = Spritesheet("Sprites/faces_sheet.png")
         faces = {
             "smile": sheet.parse_sprite("face_smile.png"),

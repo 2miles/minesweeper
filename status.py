@@ -4,6 +4,12 @@ import pygame
 
 
 class Status:
+    """
+    Defines a numerical display object; The numbers showing the bombs left and
+    the amount of seconds elapsed.
+    Emulates a 3 digit LED display.
+    """
+
     def __init__(self, x, y):
         self.num = 0
         self.sprite_w = 26
@@ -12,9 +18,15 @@ class Status:
         self.sprites = Spritesheet.parse_number_sprites(Spritesheet)
 
     def update(self, number):
+        """
+        Updates object with an integer to display
+        """
         self.num = number
 
     def draw(self):
+        """
+        Returns a surface with the numerical display
+        """
         surface = pygame.Surface((self.sprite_w * 3, self.sprite_h))
 
         first_digit = (self.num % 1000) // 100
@@ -34,6 +46,10 @@ class Status:
 
 
 class Faces:
+    """
+    Defines the top bar game state face indicator
+    """
+
     def __init__(self, x, y):
         self.sprite_w = 52
         self.sprite_h = 52
@@ -41,7 +57,7 @@ class Faces:
 
     def draw(self, game_state):
         """
-        Draws the center face according to the current game state
+        Returns a surface with the face according to the current game state
         """
         surface = pygame.Surface((self.sprite_w, self.sprite_h))
         if game_state == GameState.GAME_OVER:

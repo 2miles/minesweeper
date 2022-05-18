@@ -4,6 +4,10 @@ import pygame
 
 
 class Box:
+    """
+    Defines a single square of the game grid
+    """
+
     def __init__(self, x, y, val):
         self.x = x
         self.y = y

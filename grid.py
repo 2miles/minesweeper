@@ -5,6 +5,10 @@ import random
 
 
 class Grid:
+    """
+    Defines the Grid of Boxes for the game.
+    """
+
     def __init__(self, rows, cols, num_mines):
         self.rows = rows
         self.cols = cols
@@ -20,6 +24,9 @@ class Grid:
         self.rect = (vars.GRID_LOC_X, vars.GRID_LOC_Y, self.width, self.height)
 
     def generate_boxes(self):
+        """
+        Create a 2d array of Box objects.
+        """
         for j in range(self.rows):
             line = []
             for i in range(self.cols):
@@ -30,6 +37,9 @@ class Grid:
             self.boxes.append(line)
 
     def generate_mines(self):
+        """
+        Randomly populates the grid with mines
+        """
         mines = [[random.randrange(0, self.cols), random.randrange(0, self.rows)]]
         for _ in range(self.num_mines - 1):
             pos = [random.randrange(0, self.cols), random.randrange(0, self.rows)]
@@ -89,6 +99,10 @@ class Grid:
                         box.mineFalse = True
 
     def check_for_win(self):
+        """
+        Returns True if every Box in the Grid that is not a bomb has been clicked
+        and each one of the bombs has been flagged.
+        """
         finished = True
         for line in self.boxes:
             for box in line:
@@ -100,6 +114,9 @@ class Grid:
         return False
 
     def draw(self):
+        """
+        Returns a surface with all the boxes drawn on it
+        """
         surface = pygame.Surface((self.width, self.height))
         for line in self.boxes:
             for box in line:
