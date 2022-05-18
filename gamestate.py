@@ -2,6 +2,10 @@ from enum import Enum
 
 
 class GameState(Enum):
+    """
+    EXIT, PLAYING, MOUSE_DOWN, WIN, GAME_OVER
+    """
+
     EXIT = -1
     PLAYING = 1
     MOUSE_DOWN = 2

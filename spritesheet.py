@@ -34,7 +34,7 @@ class Spritesheet:
 
         sprite = self.data["frames"][name]["frame"]
         x, y, w, h = sprite["x"], sprite["y"], sprite["w"], sprite["h"]
-        image = get_sprite(x, y, w, h)
+        image = get_sprite(self, x, y, w, h)
         return image
 
     def parse_box_sprites(self):

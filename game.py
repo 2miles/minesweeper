@@ -46,8 +46,8 @@ class Game:
             self.seconds += 1
             if self.seconds % 60 == 0:
                 if (
-                    self.game_state != GameState.EXIT
-                    or self.game_state != GameState.WIN
+                    self.game_state == GameState.PLAYING
+                    or self.game_state == GameState.MOUSE_DOWN
                 ):
                     self.timer.update(self.seconds // 60)
                     self.final_score = self.seconds // 60
