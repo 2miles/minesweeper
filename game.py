@@ -58,6 +58,70 @@ class Game:
             self.draw_debug_info()
             pygame.display.update()
 
+    def check_events(self):
+        """
+        Processes events in the event queue.
+        """
+        for event in pygame.event.get():
+            # Check if player close window
+            if event.type == pygame.QUIT:
+                self.game_state = GameState.EXIT
+            if (
+                self.game_state == GameState.GAME_OVER
+                or self.game_state == GameState.WIN
+            ):
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        self.game_state = GameState.EXIT
+                        self.new_game()
+            else:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.game_state = GameState.MOUSE_DOWN
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    self.game_state = GameState.PLAYING
+                    for line in self.grid.boxes:
+                        for box in line:
+                            if box.rect.collidepoint(event.pos):
+                                if event.button == 1:  # Left click
+                                    self.reveal_box(box)
+                                elif event.button == 3:  # right click
+                                    self.toggle_flag(box)
+
+    def toggle_flag(self, box):
+        """
+        Toggle flag of un-clicked box. If placing a flag then decrement mines left,
+        else increment
+        """
+        if not box.clicked:
+            if box.flag:
+                box.flag = False
+                self.grid.mines_left += 1
+            else:
+                box.flag = True
+                self.grid.mines_left -= 1
+
+    def reveal_box(self, box):
+        """
+        Reveal grid around box. If box if flagged and not a bomb then remove flag.
+        If box is a bomb, regardless whether or not it is flagged, then game over.
+        """
+        self.grid.revealGrid(box.x, box.y)
+        if box.flag:
+            self.grid.mines_left += 1
+            box.flag = False
+        if box.val == -1:
+            # left click on a mine
+            self.game_state = GameState.GAME_OVER
+            box.mineClicked = True
+
+    def check_for_win(self):
+        """
+        Sets GameState to WIN if grid.check_for_win() return True
+        """
+        if self.game_state != GameState.EXIT:
+            if self.grid.check_for_win():
+                self.game_state = GameState.WIN
+
     def draw(self):
         """
         Draws all of the game elements on the screen.
@@ -94,7 +158,7 @@ class Game:
 
         def draw_game_over_message():
             """
-            Draws message over screen when player looses
+            Draws message over screen when player loses
             """
             self.display.blit(
                 drawText("Game over!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
@@ -125,68 +189,3 @@ class Game:
             debug(self.grid.mines_left, 40)
             debug(pygame.mouse.get_pos(), 80)
             debug(pygame.mouse.get_pressed(), 120)
-
-    def check_events(self):
-        """
-        Processes events in the event queue.
-        """
-
-        def toggle_flag(box):
-            """
-            Toggle flag of un-clicked box. If placing a flag then decrement mines left,
-            else increment
-            """
-            if not box.clicked:
-                if box.flag:
-                    box.flag = False
-                    self.grid.mines_left += 1
-                else:
-                    box.flag = True
-                    self.grid.mines_left -= 1
-
-        def reveal_box(box):
-            """
-            Reveal grid around box. If box if flagged and not a bomb then remove flag.
-            If box is a bomb, regardless whether or not it is flagged, then game over.
-            """
-            self.grid.revealGrid(box.x, box.y)
-            if box.flag:
-                self.grid.mines_left += 1
-                box.flag = False
-            if box.val == -1:
-                # left click on a mine
-                self.game_state = GameState.GAME_OVER
-                box.mineClicked = True
-
-        for event in pygame.event.get():
-            # Check if player close window
-            if event.type == pygame.QUIT:
-                self.game_state = GameState.EXIT
-            if (
-                self.game_state == GameState.GAME_OVER
-                or self.game_state == GameState.WIN
-            ):
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
-                        self.game_state = GameState.EXIT
-                        self.new_game()
-            else:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.game_state = GameState.MOUSE_DOWN
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    self.game_state = GameState.PLAYING
-                    for line in self.grid.boxes:
-                        for box in line:
-                            if box.rect.collidepoint(event.pos):
-                                if event.button == 1:  # Left click
-                                    reveal_box(box)
-                                elif event.button == 3:  # right click
-                                    toggle_flag(box)
-
-    def check_for_win(self):
-        """
-        Sets GameState to WIN if grid.check_for_win() return True
-        """
-        if self.game_state != GameState.EXIT:
-            if self.grid.check_for_win():
-                self.game_state = GameState.WIN
