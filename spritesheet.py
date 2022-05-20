@@ -107,5 +107,6 @@ class Spritesheet:
             "dead": sheet.parse_sprite("face_dead.png"),
             "supprise": sheet.parse_sprite("face_supprise.png"),
             "win": sheet.parse_sprite("face_win.png"),
+            "pressed": sheet.parse_sprite("face_pressed.png"),
         }
         return faces
