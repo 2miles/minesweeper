@@ -1,5 +1,6 @@
 import pygame
 import vars
+import my_utils
 
 from gamestate import GameState
 from grid import Grid
@@ -12,11 +13,14 @@ from debug import debug
 
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self, cols, rows, mines) -> None:
         pygame.init()
-        self.display = pygame.display.set_mode(
-            (vars.SCREEN_W, vars.SCREEN_H)
-        )  # Create display
+        self.cols = cols
+        self.rows = rows
+        self.mines = mines
+        self.width = cols * vars.BOX_SIZE + vars.BORDER * 2
+        self.height = rows * vars.BOX_SIZE + vars.TOP_AREA + vars.BORDER * 3
+        self.display = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Minesweeper")
         self.clock = pygame.time.Clock()  # create timer
 
@@ -27,12 +31,13 @@ class Game:
         """
         self.seconds = 0
         self.final_score = 0
+        self.face_pressed = False
         self.game_state = GameState.PLAYING
-        self.background = Background()
-        self.grid = Grid(vars.ROWS, vars.COLS, vars.MINES)
-        self.timer = Status(vars.TIMER_LOC_X, vars.TIMER_LOC_Y)
-        self.remaining = Status(vars.TIMER_LOC_Y, vars.TIMER_LOC_Y)
-        self.faces = Faces(vars.FACE_LOC_X, vars.FACE_LOC_Y)
+        self.background = Background(self.cols, self.rows)
+        self.grid = Grid(self.rows, self.cols, self.mines)
+        self.timer = Status(self.width - vars.BORDER * 2 - 64, vars.COUNTER_LOC)
+        self.remaining = Status(vars.COUNTER_LOC, vars.COUNTER_LOC)
+        self.faces = Faces(self.width // 2 - vars.FACE_W, vars.FACE_LOC_Y)
         self.game_loop()
 
     def game_loop(self):
@@ -77,12 +82,26 @@ class Game:
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.game_state = GameState.MOUSE_DOWN
+                    if self.faces.rect.collidepoint(event.pos):
+                        if event.button == 1:
+                            self.face_pressed = True
                 elif event.type == pygame.MOUSEBUTTONUP:
+                    if self.face_pressed == True:
+                        self.face_pressed = False
+                        self.game_state = GameState.EXIT
+                        self.new_game()
+                        break
                     self.game_state = GameState.PLAYING
                     for line in self.grid.boxes:
                         for box in line:
                             if box.rect.collidepoint(event.pos):
-                                if event.button == 1:  # Left click
+                                if event.button == 1 and event.button == 3:
+                                    if self.grid.check_neighbors_for_flags(
+                                        box.x, box.y
+                                    ):
+                                        if self.grid.reveal_grid(box.x, box.y):
+                                            self.game_state = GameState.GAME_OVER
+                                elif event.button == 1:  # Left click
                                     self.reveal_box(box)
                                 elif event.button == 3:  # right click
                                     self.toggle_flag(box)
@@ -105,7 +124,8 @@ class Game:
         Reveal grid around box. If box if flagged and not a bomb then remove flag.
         If box is a bomb, regardless whether or not it is flagged, then game over.
         """
-        self.grid.revealGrid(box.x, box.y)
+        if self.grid.reveal_grid(box.x, box.y):
+            self.game_state = GameState.GAME_OVER
         if box.flag:
             self.grid.mines_left += 1
             box.flag = False
@@ -127,64 +147,59 @@ class Game:
         Draws all of the game elements on the screen.
         """
 
-        def drawText(txt, size):
-            """
-            Returns a surface with the given text. The text is on an opaque grey background
-            """
-            screen_text = pygame.font.SysFont("Calibri", size, True).render(
-                txt, True, (255, 255, 255)
+        def draw_nav_message():
+            center_x = self.width / 2
+            my_utils.draw_centered_text(
+                self.display,
+                "R to Restart",
+                40,
+                center_x,
+                self.height - vars.BORDER - 40,
             )
-            rect = screen_text.get_rect()
-            surface = pygame.Surface((rect.width, rect.height))
-            surface.fill((100, 100, 100))
-            surface.blit(screen_text, (0, 0))
-            return surface
 
         def draw_win_message():
             """
-            Draws message over the screen when player wins
+            Draws win message over the center of the screen when player wins
             """
-            self.display.blit(
-                drawText("You Won!", 50), (vars.BORDER, vars.SCREEN_H // 2)
+            center_x = self.width / 2
+            center_y = self.height / 2
+            my_utils.draw_centered_text(
+                self.display, "You Win!", 50, center_x, center_y
             )
-            self.display.blit(
-                drawText(f"Your Score is {self.final_score}", 50),
-                (vars.BORDER, vars.SCREEN_H // 2 + 50),
-            )
-            self.display.blit(
-                drawText("R to restart", 50),
-                (vars.BORDER, vars.SCREEN_H // 2 + 100),
+            my_utils.draw_centered_text(
+                self.display, f"Score: {self.final_score}", 40, center_x, center_y + 50
             )
 
         def draw_game_over_message():
             """
-            Draws message over screen when player loses
+            Draws game over message over the center of the screen when player loses
             """
-            self.display.blit(
-                drawText("Game over!", 50), (vars.SCREEN_W // 2, vars.SCREEN_H // 2)
-            )
-            self.display.blit(
-                drawText("R to restart", 50),
-                (vars.SCREEN_W // 2, vars.SCREEN_H // 2 + 50),
+            center_x = self.width / 2
+            center_y = self.height / 2
+            my_utils.draw_centered_text(
+                self.display, "Game Over", 50, center_x, center_y
             )
 
         self.display.blit(self.background.draw(), (0, 0))
         self.display.blit(
-            self.faces.draw(self.game_state), (vars.FACE_LOC_X, vars.FACE_LOC_Y)
+            self.faces.draw(self.game_state, self.face_pressed),
+            (self.faces.rect),
         )
         self.display.blit(self.timer.draw(), (self.timer.rect))
         self.display.blit(self.remaining.draw(), (self.remaining.rect))
         self.display.blit(self.grid.draw(), (self.grid.rect))
         if self.game_state == GameState.WIN:
             draw_win_message()
+            draw_nav_message()
         if self.game_state == GameState.GAME_OVER:
             draw_game_over_message()
+            draw_nav_message()
 
     def draw_debug_info(self):
         """
         Draws debug info to the main display, if DEBUG is set to true
         """
-        if vars.DEBUG:
+        if vars.debug:
             debug(self.game_state, 0)
             debug(self.grid.mines_left, 40)
             debug(pygame.mouse.get_pos(), 80)

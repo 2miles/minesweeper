@@ -72,31 +72,56 @@ class Grid:
                                     if self.boxes[box.y + i][box.x + j].val == -1:
                                         box.val += 1
 
-    def revealGrid(self, x, y):
+    def check_neighbors_for_flags(self, x, y):
+        """
+        Returns True if the number of adjacent flagged boxes matches number on
+        revealed box at given coordinates
+        """
+        flags_count = 0
+        if self.boxes[y][x].clicked == True:
+            if self.boxes[y][x].val > 0 and self.boxes[y][x].val < 9:
+                for j in range(-1, 2):
+                    if x + j >= 0 and x + j < self.cols:
+                        for i in range(-1, 2):
+                            if y + i >= 0 and y + i < self.rows:
+                                if self.boxes[y + i][x + j].flag:
+                                    flags_count += 1
+        if flags_count == self.boxes[y][x].val and flags_count > 0:
+            return True
+        return False
+
+    def reveal_grid(self, x, y) -> bool:
         """
         Sets the box at argument coords clicked attribute to True.
         If its not a mine, recursivly call revealGrid() on all adjacent boxes
         that are not mines.
         If it is a mine, reveal all mines.
         """
+        explode = False
         self.boxes[y][x].clicked = True
-        if self.boxes[y][x].val == 0:
+        if self.boxes[y][x].val == 0 or self.check_neighbors_for_flags(x, y):
             for j in range(-1, 2):
                 if x + j >= 0 and x + j < self.cols:
                     for i in range(-1, 2):
                         if y + i >= 0 and y + i < self.rows:
-                            if not self.boxes[y + i][x + j].clicked:
-                                self.revealGrid(x + j, y + i)
+                            if (
+                                not self.boxes[y + i][x + j].clicked
+                                and not self.boxes[y + i][x + j].flag
+                            ):
+                                if self.reveal_grid(x + j, y + i):
+                                    explode = True
         # If you click on a mine reveal all the mines
         elif self.boxes[y][x].val == -1:
             for m in self.mines:
                 if not self.boxes[m[1]][m[0]].clicked:
-                    self.revealGrid(m[0], m[1])
+                    self.reveal_grid(m[0], m[1])
             # reveal all the missplaced flags
             for line in self.boxes:
                 for box in line:
                     if box.flag and box.val != -1:
+                        explode = True
                         box.mineFalse = True
+        return explode
 
     def check_for_win(self):
         """

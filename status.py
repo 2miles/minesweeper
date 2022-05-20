@@ -53,9 +53,10 @@ class Faces:
     def __init__(self, x, y):
         self.sprite_w = 52
         self.sprite_h = 52
+        self.rect = pygame.Rect(x, y, self.sprite_w, self.sprite_h)
         self.sprites = Spritesheet.parse_face_sprites(Spritesheet)
 
-    def draw(self, game_state):
+    def draw(self, game_state, pressed):
         """
         Returns a surface with the face according to the current game state
         """
@@ -64,11 +65,10 @@ class Faces:
             surface.blit(self.sprites["dead"], (0, 0))
         elif game_state == GameState.WIN:
             surface.blit(self.sprites["win"], (0, 0))
+        elif game_state == GameState.MOUSE_DOWN and pressed:
+            surface.blit(self.sprites["pressed"], (0, 0))
         elif game_state == GameState.MOUSE_DOWN:
             surface.blit(self.sprites["supprise"], (0, 0))
         else:
             surface.blit(self.sprites["smile"], (0, 0))
         return surface
-
-    class GameOverText:
-        pass
