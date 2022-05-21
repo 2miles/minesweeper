@@ -29,9 +29,16 @@ class Box:
         Draws a Box with a specific sprite depending on its value and its
         boolean attributes mineFalse, clicked, mineClicked, and flag
         """
+        mouse_pos = pygame.mouse.get_pos()
         surface = pygame.Surface((vars.BOX_SIZE, vars.BOX_SIZE))
         if self.mineFalse:
             surface.blit(self.sprites["box_no_bomb"], (0, 0))
+        if (
+            self.rect.collidepoint(mouse_pos)
+            and self.clicked == False
+            and pygame.mouse.get_pressed()[0]
+        ):
+            surface.blit(self.sprites["box_empty"], (0, 0))
         else:
             if self.clicked:
                 if self.val == -1:
