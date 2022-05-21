@@ -12,14 +12,28 @@ class Button:
         )
         self.sprites = Spritesheet.parse_button_sprites(Spritesheet)
         self.text = text
-        self.is_pressed = False
+        self.pressed = False
+        self.clicked = False
+
+    def update(self):
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            # if mouse is hovering over button
+            if pygame.mouse.get_pressed()[0]:
+                self.pressed = True
+        else:
+            self.pressed = False
+        if self.pressed:
+            if self.rect.collidepoint(mouse_pos):
+                if not pygame.mouse.get_pressed()[0]:
+                    self.clicked = True
 
     def draw(self):
         """
         Return a surface with the button drawn on it
         """
         surface = pygame.Surface((self.sprite_w, self.sprite_h))
-        if self.is_pressed:
+        if self.pressed:
             surface.blit(self.sprites["button_pressed"], (0, 0))
             my_utils.draw_centered_text(
                 surface,
