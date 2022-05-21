@@ -1,9 +1,10 @@
-import vars
 import pygame
+import vars
+import my_utils
 from game import Game
 from background import Background
 from gamestate import MenuState
-import my_utils
+from button import Button
 
 
 class Menu:
@@ -14,8 +15,11 @@ class Menu:
         self.display = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Minesweeper Menu")
         self.clock = pygame.time.Clock()
-        self.background = Background(vars.MENU_COLS, vars.MENU_ROWS)
         self.menu_state = MenuState.RUNNING
+        self.background = Background(vars.MENU_COLS, vars.MENU_ROWS)
+        self.beginner_button = Button(self.width / 2, 150, "Beginner")
+        self.intermediate_button = Button(self.width / 2, 200, "Intermediate")
+        self.expert_button = Button(self.width / 2, 250, "Expert")
 
     def menu_loop(self):
         while self.menu_state != MenuState.EXIT:
@@ -28,32 +32,41 @@ class Menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.menu_state = MenuState.EXIT
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_b:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.beginner_button.rect.collidepoint(event.pos):
+                    if event.button == 1:
+                        self.beginner_button.is_pressed = True
+                if self.intermediate_button.rect.collidepoint(event.pos):
+                    if event.button == 1:
+                        self.intermediate_button.is_pressed = True
+                if self.expert_button.rect.collidepoint(event.pos):
+                    if event.button == 1:
+                        self.expert_button.is_pressed = True
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.beginner_button.is_pressed = False
+                self.intermediate_button.is_pressed = False
+                self.expert_button.is_pressed = False
+                if self.beginner_button.rect.collidepoint(event.pos):
                     game = Game(cols=9, rows=9, mines=10)
                     game.new_game()
                     self.display = pygame.display.set_mode((self.width, self.height))
-                elif event.key == pygame.K_i:
+                elif self.intermediate_button.rect.collidepoint(event.pos):
                     game = Game(cols=16, rows=16, mines=40)
                     game.new_game()
                     self.display = pygame.display.set_mode((self.width, self.height))
-                elif event.key == pygame.K_e:
-                    game = Game(cols=30, rows=16, mines=1)
+                elif self.expert_button.rect.collidepoint(event.pos):
+                    game = Game(cols=30, rows=16, mines=100)
                     game.new_game()
                     self.display = pygame.display.set_mode((self.width, self.height))
 
     def draw(self):
         self.display.blit(self.background.draw(), (0, 0))
         my_utils.draw_centered_text(self.display, "MINESWEEPER", 40, self.width / 2, 52)
-        my_utils.draw_centered_text(
-            self.display, "B --  Beginner      ", 30, self.width / 2, 140
+        self.display.blit(self.beginner_button.draw(), (self.beginner_button.rect))
+        self.display.blit(
+            self.intermediate_button.draw(), (self.intermediate_button.rect)
         )
-        my_utils.draw_centered_text(
-            self.display, "I  --  Intermediate", 30, self.width / 2, 200
-        )
-        my_utils.draw_centered_text(
-            self.display, "E --  Expert           ", 30, self.width / 2, 260
-        )
+        self.display.blit(self.expert_button.draw(), (self.expert_button.rect))
 
 
 def main():
