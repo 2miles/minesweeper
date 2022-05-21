@@ -128,28 +128,15 @@ class Game:
         Draws all of the game elements on the screen.
         """
 
-        def draw_win_message():
-            """
-            Draws win message over the center of the screen when player wins
-            """
-            center_x = self.width / 2
-            center_y = self.height / 2
-            my_utils.draw_centered_text(
-                self.display, "You Win!", 50, center_x, center_y
-            )
-            my_utils.draw_centered_text(
-                self.display, f"Score: {self.final_score}", 40, center_x, center_y + 50
-            )
-
-        def draw_game_over_message():
-            """
-            Draws game over message over the center of the screen when player loses
-            """
-            center_x = self.width / 2
-            center_y = self.height / 2
-            my_utils.draw_centered_text(
-                self.display, "Game Over", 50, center_x, center_y
-            )
+        def draw_message():
+            score_text = (f"Score: {self.timer.num}",)
+            x = self.width / 2
+            y = self.height / 2
+            if self.game_state == GameState.WIN:
+                my_utils.draw_centered_text(self.display, "You Win!", 50, x, y)
+                my_utils.draw_centered_text(self.display, score_text, 40, x, y + 50)
+            if self.game_state == GameState.GAME_OVER:
+                my_utils.draw_centered_text(self.display, "Game Over", 50, x, y)
 
         self.display.blit(self.background.draw(), (0, 0))
         self.display.blit(
@@ -159,10 +146,7 @@ class Game:
         self.display.blit(self.timer.draw(), (self.timer.rect))
         self.display.blit(self.remaining.draw(), (self.remaining.rect))
         self.display.blit(self.grid.draw(), (self.grid.rect))
-        if self.game_state == GameState.WIN:
-            draw_win_message()
-        if self.game_state == GameState.GAME_OVER:
-            draw_game_over_message()
+        draw_message()
 
     def draw_debug_info(self):
         """
