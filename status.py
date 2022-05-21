@@ -1,6 +1,7 @@
 from spritesheet import Spritesheet
 from gamestate import GameState
 import pygame
+import time
 
 
 class Status:
@@ -11,6 +12,7 @@ class Status:
     """
 
     def __init__(self, x, y):
+        self.start_time = time.time()
         self.num = 0
         self.sprite_w = 26
         self.sprite_h = 46
@@ -22,6 +24,9 @@ class Status:
         Updates object with an integer to display
         """
         self.num = number
+
+    def update_time(self):
+        self.num = int(time.time() - self.start_time)
 
     def draw(self):
         """

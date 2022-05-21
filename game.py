@@ -29,8 +29,7 @@ class Game:
         Instantiates game objects and initializes time, score, gameState,
         then starts the game loop
         """
-        self.seconds = 0
-        self.final_score = 0
+        self.ticks = 0
         self.face_pressed = False
         self.game_state = GameState.PLAYING
         self.background = Background(self.cols, self.rows)
@@ -48,11 +47,8 @@ class Game:
         while self.game_state != GameState.EXIT:
             # Reset screen
             self.clock.tick(60)  # Tick fps
-            self.seconds += 1
-            if self.seconds % 60 == 0:
-                if self.game_state == GameState.PLAYING:
-                    self.timer.update(self.seconds // 60)
-                    self.final_score = self.seconds // 60
+            if self.game_state == GameState.PLAYING:
+                self.timer.update_time()
             self.remaining.update(self.grid.mines_left)
             self.faces.update(self.grid.rect)
             self.check_events()
