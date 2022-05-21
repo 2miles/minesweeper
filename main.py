@@ -32,17 +32,14 @@ class Menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.menu_state = MenuState.EXIT
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.beginner_button.rect.collidepoint(event.pos):
-                    if event.button == 1:
-                        self.beginner_button.is_pressed = True
+                    self.beginner_button.is_pressed = True
                 if self.intermediate_button.rect.collidepoint(event.pos):
-                    if event.button == 1:
-                        self.intermediate_button.is_pressed = True
+                    self.intermediate_button.is_pressed = True
                 if self.expert_button.rect.collidepoint(event.pos):
-                    if event.button == 1:
-                        self.expert_button.is_pressed = True
-            if event.type == pygame.MOUSEBUTTONUP:
+                    self.expert_button.is_pressed = True
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self.beginner_button.is_pressed = False
                 self.intermediate_button.is_pressed = False
                 self.expert_button.is_pressed = False
