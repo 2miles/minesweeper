@@ -47,17 +47,16 @@ class Menu:
                 self.intermediate_button.is_pressed = False
                 self.expert_button.is_pressed = False
                 if self.beginner_button.rect.collidepoint(event.pos):
-                    game = Game(cols=9, rows=9, mines=10)
-                    game.new_game()
-                    self.display = pygame.display.set_mode((self.width, self.height))
+                    self.new_game_window(9, 9, 10)
                 elif self.intermediate_button.rect.collidepoint(event.pos):
-                    game = Game(cols=16, rows=16, mines=40)
-                    game.new_game()
-                    self.display = pygame.display.set_mode((self.width, self.height))
+                    self.new_game_window(16, 16, 40)
                 elif self.expert_button.rect.collidepoint(event.pos):
-                    game = Game(cols=30, rows=16, mines=100)
-                    game.new_game()
-                    self.display = pygame.display.set_mode((self.width, self.height))
+                    self.new_game_window(30, 16, 100)
+
+    def new_game_window(self, cols, rows, mines):
+        game = Game(cols, rows, mines)
+        game.new_game()
+        self.display = pygame.display.set_mode((self.width, self.height))
 
     def draw(self):
         self.display.blit(self.background.draw(), (0, 0))
