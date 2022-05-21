@@ -54,7 +54,7 @@ class Game:
                     self.timer.update(self.seconds // 60)
                     self.final_score = self.seconds // 60
             self.remaining.update(self.grid.mines_left)
-            self.faces.update()
+            self.faces.update(self.grid.rect)
             self.check_events()
             self.check_for_win()
             self.draw()
@@ -66,22 +66,16 @@ class Game:
         Processes events in the event queue.
         """
         for event in pygame.event.get():
-            # Check if player close window
             if event.type == pygame.QUIT:
                 self.game_state = GameState.EXIT
-            if (
-                self.game_state == GameState.GAME_OVER
-                or self.game_state == GameState.WIN
-            ):
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
-                        self.game_state = GameState.EXIT
-                        self.new_game()
             if self.faces.pressed:
                 self.new_game()
                 break
             else:
-                if event.type == pygame.MOUSEBUTTONUP:
+                if (
+                    event.type == pygame.MOUSEBUTTONUP
+                    and self.game_state != GameState.GAME_OVER
+                ):
                     self.game_state = GameState.PLAYING
                     for line in self.grid.boxes:
                         for box in line:
@@ -138,16 +132,6 @@ class Game:
         Draws all of the game elements on the screen.
         """
 
-        def draw_nav_message():
-            center_x = self.width / 2
-            my_utils.draw_centered_text(
-                self.display,
-                "R to Restart",
-                40,
-                center_x,
-                self.height - vars.BORDER - 40,
-            )
-
         def draw_win_message():
             """
             Draws win message over the center of the screen when player wins
@@ -173,7 +157,7 @@ class Game:
 
         self.display.blit(self.background.draw(), (0, 0))
         self.display.blit(
-            self.faces.draw(self.game_state, self.face_pressed),
+            self.faces.draw(self.game_state),
             (self.faces.rect),
         )
         self.display.blit(self.timer.draw(), (self.timer.rect))
@@ -181,10 +165,8 @@ class Game:
         self.display.blit(self.grid.draw(), (self.grid.rect))
         if self.game_state == GameState.WIN:
             draw_win_message()
-            draw_nav_message()
         if self.game_state == GameState.GAME_OVER:
             draw_game_over_message()
-            draw_nav_message()
 
     def draw_debug_info(self):
         """

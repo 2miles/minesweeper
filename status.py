@@ -59,30 +59,32 @@ class Faces:
         self.board_clicked = False
         self.released = False
 
-    def update(self):
+    def update(self, grid_rect):
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
+            # if mouse is hovering over face
             if pygame.mouse.get_pressed()[0]:
                 self.pressed = True
-            if pygame.mouse.get_rel()[0]:
+            elif pygame.mouse.get_rel()[0]:
                 self.released = True
         else:
-            if pygame.mouse.get_pressed()[0]:
-                self.board_clicked = True
-            if pygame.mouse.get_rel()[0]:
+            if not pygame.mouse.get_pressed()[0]:
                 self.board_clicked = False
+            if grid_rect.collidepoint(mouse_pos):
+                if pygame.mouse.get_pressed()[0]:
+                    self.board_clicked = True
 
-    def draw(self, game_state, pressed):
+    def draw(self, game_state):
         """
         Returns a surface with the face according to the current game state
         """
         surface = pygame.Surface((self.sprite_w, self.sprite_h))
-        if game_state == GameState.GAME_OVER:
+        if self.pressed:
+            surface.blit(self.sprites["pressed"], (0, 0))
+        elif game_state == GameState.GAME_OVER:
             surface.blit(self.sprites["dead"], (0, 0))
         elif game_state == GameState.WIN:
             surface.blit(self.sprites["win"], (0, 0))
-        elif self.pressed:
-            surface.blit(self.sprites["pressed"], (0, 0))
         elif self.board_clicked:
             surface.blit(self.sprites["supprise"], (0, 0))
         else:

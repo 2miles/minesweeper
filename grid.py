@@ -21,7 +21,9 @@ class Grid:
         self.mines = self.generate_mines()
         self.generate_boxes()
         self.populate_values()
-        self.rect = (vars.GRID_LOC_X, vars.GRID_LOC_Y, self.width, self.height)
+        self.rect = pygame.Rect(
+            vars.GRID_LOC_X, vars.GRID_LOC_Y, self.width, self.height
+        )
 
     def generate_boxes(self):
         """
