@@ -1,5 +1,4 @@
 from spritesheet import Spritesheet
-from gamestate import GameState
 import vars
 import pygame
 

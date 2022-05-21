@@ -62,7 +62,7 @@ class Spritesheet:
 
     def parse_number_sprites(self):
         """
-        Returns a dictionary of all the individual sprites from the numbers spritesheet.
+        Returns a list of all the individual sprites from the numbers spritesheet.
         """
         sheet = Spritesheet("Sprites/number_sheet.png")
         sprites = [

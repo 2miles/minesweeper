@@ -55,6 +55,22 @@ class Faces:
         self.sprite_h = 52
         self.rect = pygame.Rect(x, y, self.sprite_w, self.sprite_h)
         self.sprites = Spritesheet.parse_face_sprites(Spritesheet)
+        self.pressed = False
+        self.board_clicked = False
+        self.released = False
+
+    def update(self):
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            if pygame.mouse.get_pressed()[0]:
+                self.pressed = True
+            if pygame.mouse.get_rel()[0]:
+                self.released = True
+        else:
+            if pygame.mouse.get_pressed()[0]:
+                self.board_clicked = True
+            if pygame.mouse.get_rel()[0]:
+                self.board_clicked = False
 
     def draw(self, game_state, pressed):
         """
@@ -65,9 +81,9 @@ class Faces:
             surface.blit(self.sprites["dead"], (0, 0))
         elif game_state == GameState.WIN:
             surface.blit(self.sprites["win"], (0, 0))
-        elif game_state == GameState.MOUSE_DOWN and pressed:
+        elif self.pressed:
             surface.blit(self.sprites["pressed"], (0, 0))
-        elif game_state == GameState.MOUSE_DOWN:
+        elif self.board_clicked:
             surface.blit(self.sprites["supprise"], (0, 0))
         else:
             surface.blit(self.sprites["smile"], (0, 0))

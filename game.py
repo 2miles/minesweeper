@@ -50,13 +50,11 @@ class Game:
             self.clock.tick(60)  # Tick fps
             self.seconds += 1
             if self.seconds % 60 == 0:
-                if (
-                    self.game_state == GameState.PLAYING
-                    or self.game_state == GameState.MOUSE_DOWN
-                ):
+                if self.game_state == GameState.PLAYING:
                     self.timer.update(self.seconds // 60)
                     self.final_score = self.seconds // 60
             self.remaining.update(self.grid.mines_left)
+            self.faces.update()
             self.check_events()
             self.check_for_win()
             self.draw()
@@ -79,18 +77,11 @@ class Game:
                     if event.key == pygame.K_r:
                         self.game_state = GameState.EXIT
                         self.new_game()
+            if self.faces.pressed:
+                self.new_game()
+                break
             else:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.game_state = GameState.MOUSE_DOWN
-                    if self.faces.rect.collidepoint(event.pos):
-                        if event.button == 1:
-                            self.face_pressed = True
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    if self.face_pressed == True:
-                        self.face_pressed = False
-                        self.game_state = GameState.EXIT
-                        self.new_game()
-                        break
+                if event.type == pygame.MOUSEBUTTONUP:
                     self.game_state = GameState.PLAYING
                     for line in self.grid.boxes:
                         for box in line:
