@@ -1,0 +1,20 @@
+{
+    "frames": {
+        "button.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 260,
+                "h": 52
+            }
+        },
+        "button_pressed.png": {
+            "frame": {
+                "x": 260,
+                "y": 0,
+                "w": 260,
+                "h": 52
+            }
+        }
+    }
+}

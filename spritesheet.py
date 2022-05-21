@@ -110,3 +110,14 @@ class Spritesheet:
             "pressed": sheet.parse_sprite("face_pressed.png"),
         }
         return faces
+
+    def parse_button_sprites(self):
+        """
+        Returns a dictionary of all the individual sprites from the button spritesheet.
+        """
+        sheet = Spritesheet("Sprites/button_sheet.png")
+        buttons = {
+            "button": sheet.parse_sprite("button.png"),
+            "button_pressed": sheet.parse_sprite("button_pressed.png"),
+        }
+        return buttons
