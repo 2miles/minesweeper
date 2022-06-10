@@ -21,6 +21,7 @@ class Menu:
         self.buttons["beginner"] = Button(self.width / 2, 150, "Beginner")
         self.buttons["intermediate"] = Button(self.width / 2, 200, "Intermediate")
         self.buttons["expert"] = Button(self.width / 2, 250, "Expert")
+        self.buttons["scores"] = Button(self.width / 2, 320, "High Scores")
 
     def menu_loop(self):
         while self.menu_state != MenuState.EXIT:
@@ -59,3 +60,4 @@ class Menu:
             self.buttons["intermediate"].draw(), (self.buttons["intermediate"].rect)
         )
         self.display.blit(self.buttons["expert"].draw(), (self.buttons["expert"].rect))
+        self.display.blit(self.buttons["scores"].draw(), (self.buttons["scores"].rect))

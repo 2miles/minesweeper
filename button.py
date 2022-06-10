@@ -27,6 +27,7 @@ class Button:
             if self.rect.collidepoint(mouse_pos):
                 if not pygame.mouse.get_pressed()[0]:
                     self.clicked = True
+                    self.pressed = False
 
     def draw(self):
         """

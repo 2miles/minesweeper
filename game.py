@@ -36,7 +36,7 @@ class Game:
         self.grid = Grid(self.rows, self.cols, self.mines)
         self.timer = Status(self.width - vars.BORDER * 2 - 64, vars.COUNTER_LOC)
         self.remaining = Status(vars.COUNTER_LOC, vars.COUNTER_LOC)
-        self.faces = Faces(self.width // 2 - vars.FACE_W, vars.FACE_LOC_Y)
+        self.faces = Faces(self.width / 2 - vars.FACE_W / 2, vars.FACE_LOC_Y)
         self.game_loop()
 
     def game_loop(self):
@@ -129,7 +129,7 @@ class Game:
         """
 
         def draw_message():
-            score_text = (f"Score: {self.timer.num}",)
+            score_text = f"Score: {int(self.timer.num)}"
             x = self.width / 2
             y = self.height / 2
             if self.game_state == GameState.WIN:
